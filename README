@@ -1,0 +1,198 @@
+Publication Ingest
+
+Python version used: 2.7.6
+
+# Get weekly batch of papers from Thomson Reuters: The batch of papers
+# is renewed every friday. So to get a weekly batch of papers, the
+# papers should be downloaded every thursday and saved in the format of
+# tr_mm_dd_yyyy_wk.bib where mm_dd_yyyy is the respective date for
+# Monday in the next week (Monday when you are going to run the
+# publication ingest)
+# 
+STEPS 1. Go to "http://isiknowledge.com/wos"
+
+2. Go to "Advanced Search"
+
+3. Paste the Query "AD=(University Florida OR Univ Florida OR UFL OR
+UF)" in the search box. It will list the papers affiliated to the
+University of Florida. The time range will determine the papers to be
+downloaded.
+
+
+4. Below the search box, there are the following options to give time
+limits. -dropdown menu (gives the papers based on year, month, three
+weeks or last week etc.) -from 'year' to 'year' (gives range from a
+particular year to the desired year, for eg. 2008 to  2010)
+
+ So now because the query is run on thursday, then the first drop down
+ option is used which allows to list papers for latest week "Current
+ week".
+
+
+5. Hit search. It gives the batch of papers entered in Thomson Reuters
+in the last week. Click on the batch of papers. Lists all the papers
+with titles.
+
+
+6. On top of the papers, the options "Send to" has a drop down menu arrow,
+choose "other file formats". -Records :all records on page records from
+__ to __ (Select this option and enter the number of papers to be
+downloaded. For eg. if papers are 143, then range should be 1 to 143)
+-Content : select "Full Record" -Format  : Choose Bibtex Hit "Send"
+
+
+7. The file will be saved in the downloads as "savedrecs.bib". Rename the file as tr_mm_dd_yyyy_wk.bib. tr stands for
+Thomson Reuters, mm for month, dd for the date and yyyy for year, wk is
+for weekly (the date should be the monday when the ingest is to be
+done). Save the file in the data subdirectory.
+
+
+# Now, the first step is done. After you have the bibtex file, the file
+# should be processed through various python files to get the final RDF,
+# report and text file with all the titles added and respective DOIs.
+# 
+# Open the terminal window. (in mac: Launchpad>Utilities>Terminal ; in
+# windows: open the start menu, type "cmd" and press enter, a terminal
+# window opens). 
+
+1. Run the shell script pub_ingest.sh. First the file will be processed by fix-bibtex.py, then by read-bibtex.py, and finally bibtex2.rdf will generate output RDF.
+
+
+2. Open the report. There is a publisher report at the very top, and
+tells how many new publishers were created. Check each of the publishers
+created in the final report and search for the publisher(may be in
+abbreviations) in the original bibtex file i.e. tr_mm_dd_yyyy_wk.bib.
+The possible abbreviations are listed in the file vivotools.py.
+
+3. Open the fix_bibtex.csv file with editor. It consists of all the
+publishers with their abbreviations and corrected names.
+
+#For eg.
+#
+    ADIS INT LTD|ADIS INTERNATIONAL LIMITED
+
+The first part is the abbreviation of the publisher by which it was
+added to VIVO initially. However, it is replaced by the correct and full
+name.
+
+In your report, find the abbreviated name of the publisher created in
+the original bibtex file. Find the correct name of the publisher from
+internet (Google etc.). In the fix_bibtex.csv, put the abbreviated name
+and the corrected name of the publisher in the same format as above.
+Repeat the process for all the publishers created (if the abbreviated
+name is different from the correct name).
+
+Save the file.
+
+4. Re-run the process using the script (same previous commands: Step 1.
+No need to change the pathname again).
+
+You should have all the final five files now, output to the data subdirectory: tr_mm_dd_yyyy_wk.bib ;
+tr_mm_dd_yyyy_wk_fin.bib ; tr_mm_dd_yyyy_wk_fin.rpt ;
+tr_mm_dd_yyyy_wk_fin.lst ; tr_mm_dd_yyyy_wk_fin.rdf
+
+
+5. Upload the RDF.
+
+	a. Open "vivo.ufl.edu". Log into your account (You must have Editor
+	rights to be able to upload RDF)
+
+	b. On the top right corner of the screen, click on "Siteadmin".
+
+	c. Siteadmin > Add/Remove RDF Data (Under "Advanced Data Tools")
+
+	d. It gives you an option to choose a file to upload. Click on the
+	option and choose the RDF "tr_mm_dd_yyyy_wk_fin.rdf
+
+	e. Click "Submit"
+
+	It takes 10-15 min to upload the RDF depending on the size of the
+	file. When the upload is complete, the message will appear "RDF
+	upload successful"
+
+
+
+6. After the  upload is successful, the VIVO-Editor list should be
+notified about the update with the umber of publications added and the
+titles added.
+
+	a. The mail should be sent to : " VIVO-EDITORS-L@lists.ufl.edu "
+	with subject in format "'n' publications added to VIVO" (n stands
+	for for the number of publications added)
+
+	b. The exact number of publications added is given in the report as
+	"publication created"
+
+	b. The format of the mail should be:
+
+
+
+		Hello,
+
+		'n' publications have been added to VIVO. The publications are
+		from the latest week batch. The titles are listed below.
+
+
+
+		Regards,
+
+		Your Name
+
+
+
+		Copy paste the whole .lst file contents.
+
+	d. Send out the mail.
+
+
+
+#Disambiguation Cases: In the final report, at the very bottom, there is
+#a whole list of the disambiguation cases. These are the cases where the
+#publication added had an author similar to one existing in VIVO and the
+#program could not identify the right author to attach the publication.
+#Mostly, the links in disambiguation report are the stubs of a main
+#profile. So, to remove these, you will need to merge the stubs to the
+#main profile.
+#
+#
+#
+1. The report gives the URI where the publication is located. Below that
+there is the name of the author and at least two URIs between which the
+publication might be attached to.
+
+
+
+2. Open the publication URI. Now open the author URIs listed below in
+other tabs. There can be two cases:
+
+	a. The URIs belong to the same person but are stubs (duplicate
+	profiles which dont have UFID on them).In this case, find the main
+	profile for the person and merge all the stubs to the main profile.
+	For merging, follow the steps below:
+
+		Siteadmin > Ingest Tools > Merge Resources
+
+		A page opens allowing you to merge two different URIs. The first
+		one is primary and below is secondary. Paste the main profile
+		URI in the primary resource and URIs of the stub profiles in the
+		secondary resource space one by one.
+
+	b. The dismabiguation can be between two main profiles from
+	different department. This will need your judgement regarding where
+	and to which of the profiles, the publication should be linked to.
+	This can be decided by matching the department of the person and the
+	publication.
+
+3. The process is repeated for every disambiguation case in the report.
+
+
+
+
+
+
+
+
+
+
+
+
